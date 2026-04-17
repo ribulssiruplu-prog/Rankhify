@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rankhify | THE ONE</title>
+    <title>Rankhify</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700;800&family=Inter:wght@400;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #030303;
             --accent: #7000ff;
-            --accent-glow: rgba(112, 0, 255, 0.6);
+            --accent-glow: rgba(112, 0, 255, 0.4);
             --gold: #ffcc00;
             --glass: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.1);
@@ -22,32 +22,52 @@
             color: white;
             font-family: 'Inter', sans-serif;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
+            padding: 50px 20px;
         }
 
         /* Futuristinen animoitu tausta */
         body::before {
             content: "";
-            position: absolute;
-            width: 150%;
-            height: 150%;
-            background: radial-gradient(circle at center, var(--accent-glow) 0%, transparent 40%);
-            animation: drift 10s infinite alternate ease-in-out;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at center, var(--accent-glow) 0%, transparent 60%);
+            animation: drift 15s infinite alternate ease-in-out;
             z-index: -1;
         }
 
         @keyframes drift {
-            from { transform: translate(-10%, -10%); }
-            to { transform: translate(10%, 10%); }
+            from { transform: scale(1) translate(-10%, -10%); }
+            to { transform: scale(1.2) translate(10%, 10%); }
         }
 
-        .profile-container {
+        .header-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 64px;
+            font-weight: 800;
+            letter-spacing: 15px;
+            text-transform: uppercase;
+            color: var(--accent);
+            text-shadow: 0 0 30px var(--accent-glow);
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .leaderboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .profile-card {
             position: relative;
             width: 100%;
-            max-width: 500px;
             padding: 40px;
             text-align: center;
             background: var(--glass);
@@ -55,38 +75,31 @@
             border: 1px solid var(--border);
             border-radius: 40px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s ease, border-color 0.4s ease;
         }
 
-        @keyframes popIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+        .profile-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
         }
 
-        .crown {
-            font-size: 50px;
+        .rank-crown {
+            font-size: 40px;
             margin-bottom: 10px;
             display: block;
             filter: drop-shadow(0 0 15px var(--gold));
-            animation: float 3s infinite ease-in-out;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        h1 {
+        .player-name {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 56px;
+            font-size: 48px;
             font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             margin-bottom: 5px;
             background: linear-gradient(to bottom, #fff 40%, #888);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
         }
 
         .status-badge {
@@ -94,7 +107,7 @@
             padding: 5px 15px;
             background: var(--accent);
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 900;
             letter-spacing: 2px;
             margin-bottom: 30px;
@@ -107,80 +120,108 @@
             gap: 15px;
         }
 
-        .stat-card {
+        .stat-item {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border);
-            padding: 20px;
+            padding: 15px;
             border-radius: 20px;
             transition: 0.3s;
         }
 
-        .stat-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-5px);
-            background: rgba(112, 0, 255, 0.05);
-        }
-
         .stat-label {
             display: block;
-            font-size: 10px;
+            font-size: 9px;
             color: #777;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
 
         .stat-value {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
-        .ht-text { color: var(--gold); text-shadow: 0 0 10px rgba(255,204,0,0.3); }
-        .lt-text { color: #aaa; }
-
-        .mace-full { grid-column: span 2; }
+        .ht-text { color: var(--gold); text-shadow: 0 0 10px rgba(255,204,0,0.2); }
+        .lt-text { color: #888; }
+        
+        /* Erikoisasettelu viimeiselle statille jos pariton määrä */
+        .full-width { grid-column: span 2; }
 
     </style>
 </head>
 <body>
 
-    <div class="profile-container">
-        <span class="crown">👑</span>
-        <h1>MrKetsuppi</h1>
-        <div class="status-badge">TOP TIER PLAYER</div>
+    <h1 class="header-title">Rankhify</h1>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <span class="stat-label">Sword Mastery</span>
-                <div class="stat-value ht-text">⚔️ HT5</div>
-            </div>
-            
-            <div class="stat-card">
-                <span class="stat-label">Crystal PvP</span>
-                <div class="stat-value ht-text">🔮 HT4</div>
-            </div>
-
-            <div class="stat-card">
-                <span class="stat-label">Axe Combat</span>
-                <div class="stat-value ht-text">🪓 HT5</div>
-            </div>
-
-            <div class="stat-card">
-                <span class="stat-label">UHC Survival</span>
-                <div class="stat-value lt-text">🍎 LT5</div>
-            </div>
-
-            <div class="stat-card mace-full">
-                <span class="stat-label">Mace Specialist</span>
-                <div class="stat-value lt-text">🔨 LT5</div>
-            </div>
+    <div class="leaderboard-container" id="leaderboard">
         </div>
-    </div>
+
+    <script>
+        // TÄSTÄ VOIT LISÄTÄ TAI MUOKATA PELAAJIA
+        const PLAYERS_DATABASE = [
+            {
+                name: "MrKetsuppi",
+                ranks: [
+                    { label: "Sword", val: "HT5", type: "ht" },
+                    { label: "Crystal PvP", val: "HT4", type: "ht" },
+                    { label: "Axe", val: "HT5", type: "ht" },
+                    { label: "UHC", val: "LT5", type: "lt" },
+                    { label: "Mace", val: "LT5", type: "lt", full: true }
+                ]
+            }
+            // Voit lisätä uuden pelaajan näin:
+            /*
+            ,{
+                name: "Esimerkki",
+                ranks: [
+                    { label: "Sword", val: "HT1", type: "ht" },
+                    { label: "Crystal", val: "LT2", type: "lt" }
+                ]
+            }
+            */
+        ];
+
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboard');
+            container.innerHTML = "";
+
+            PLAYERS_DATABASE.forEach((player, index) => {
+                const statsHtml = player.ranks.map(r => `
+                    <div class="stat-item ${r.full ? 'full-width' : ''}">
+                        <span class="stat-label">${r.label}</span>
+                        <div class="stat-value ${r.type === 'ht' ? 'ht-text' : 'lt-text'}">
+                            ${getIcon(r.label)} ${r.val}
+                        </div>
+                    </div>
+                `).join('');
+
+                container.innerHTML += `
+                    <div class="profile-card">
+                        <span class="rank-crown">${index === 0 ? '👑' : '⭐'}</span>
+                        <h2 class="player-name">${player.name}</h2>
+                        <div class="status-badge">${index === 0 ? 'ELITE LEADER' : 'TOP PLAYER'}</div>
+                        <div class="stats-grid">
+                            ${statsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function getIcon(label) {
+            const l = label.toLowerCase();
+            if (l.includes("sword")) return "⚔️";
+            if (l.includes("crystal")) return "🔮";
+            if (l.includes("axe")) return "🪓";
+            if (l.includes("uhc")) return "🍎";
+            if (l.includes("mace")) return "🔨";
+            return "🛡️";
+        }
+
+        renderLeaderboard();
+    </script>
 
 </body>
 </html>
